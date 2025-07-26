@@ -1,0 +1,157 @@
+@startuml quiz-management
+
+abstract class "User" as user{
+    #name:string
+    #userID:string
+    -password:string
+    +{abstract}login(userid, password):bool
+    +{abstract}logout():bool
+    +{abstract}info():void
+    #verify(userid,password):bool
+}
+
+class "Student" as student{
+    +viewAvailableQuizzes():void
+    +attendQuiz(quizId):void
+    +answerQuestion(questionId, answer):void
+    +submit():void
+    +viewUpcomingQuizzes():void
+    +viewresult(quizId):void
+    +viewAllResults():void
+}
+
+class "Admin" as admin{
+    /'Student Management'/
+    +addStudent():void
+    +removeStudent(studentId):void
+    +viewAllStudents():void
+    +viewStudentResult(studentId):void
+    /'Quiz Management'/
+    +createQuiz():void
+    +editQuiz(quizId):void
+    +deleteQuiz(quizId):void
+    +startQuiz():void
+    +endQuiz(quizId):void
+    /'Question Management'/
+    +addQuestiontoQuiz(quizId, question):void
+    +displayAllQuizzes():void
+    +viewQuizResults(quizId):void
+}
+
+class "Quiz" as quiz{
+    -quizId:string
+    -title:string
+    -description:string
+    -questions:vector<Question>
+    -timeLimit:int
+    -maxAttempts:int
+    -isActive:bool
+    /'Question Management'/
+    +addQuestion(question):void
+    +removeQuestion(questionId):void
+    +isQuizActive():bool
+    +setActive(active:bool):bool
+    +displayQuiz():void
+}
+
+enum Difficulty as "Diff" {
+    EASY = 1
+    MEDIUM = 2
+    HARD = 3
+}
+
+class "Question" as question{
+    -questionId:string
+    -questionText:string
+    -options:vector<string>
+    -correctAnswer:int
+    -points:int
+    -diffLevel:Diff
+
+    /'Question Management'/
+    +checkAnswer(studentAnswer):bool
+    +displayQuestion():void
+}
+
+class "Result" as result{
+    -resultId:string
+    -studentID:string
+    -quizID:string
+    /'Quiz Performance'/
+    -totalQuestions:int
+    -correctAnswer:int
+    -incorrectAnswer:int
+    -skippedQuestions:int
+    -totalPoints:int
+
+    /'Calculation'/
+    +calculateScore():void
+    /'Display'/
+    +displayResult():void
+}
+
+/' UI Classes '/
+/'
+class LoginScreen as "loginscreen"{
+    +displayLogin():void
+    +validateCredentials():bool
+}
+
+class MainMenu as "mainmenu"{
+    +displayMenu():void
+    +handleSelection():void
+}
+
+class AdminMenu as "adminmenu"{
+    +displayAdminOptions():void
+    +handleAdminAction():void
+}
+
+class StudentMenu as "studentmenu"{
+    +displayStudentOptions():void
+    +handleStudentAction():void
+}
+
+class QuizMenu as "quizmenu"{
+    +displayQuizOptions():void
+    +startQuiz():void
+}
+
+class ResultMenu as "resultmenu"{
+    +displayResults():void
+    +showStatistics():void
+}
+'/
+/' RELATIONSHIPS '/
+/'
+' Inheritance
+user <|-- student : "inherits"
+user <|-- admin : "inherits"
+
+' Composition (Strong ownership)
+quiz *-- "1..*" question : "contains"
+
+' Aggregation (Weak ownership)
+quiz o-- "0..*" result : "has results"
+student o-- "0..*" result : "has results"
+admin o-- "0..*" quiz : "manages"
+admin o-- "0..*" student : "manages"
+
+' Association
+result -- student : "belongs to"
+result -- quiz : "result of"
+student -- quiz : "takes"
+
+' Dependencies (UI)
+loginscreen ..> user : "authenticates"
+mainmenu ..> admin : "redirects to"
+mainmenu ..> student : "redirects to"
+adminmenu ..> admin : "uses"
+studentmenu ..> student : "uses"
+quizmenu ..> quiz : "displays"
+resultmenu ..> result : "shows"
+
+' Enum relationship
+question -- Diff : "has difficulty"
+'/
+@enduml
