@@ -2,21 +2,13 @@
 #define QUESTION_H
 #include <string>
 #include <vector>
+#include "Enum.h"
 using namespace std;
 
 namespace QuizModel
 {
     class Question
     {
-    public:
-        // Enumeration
-        enum Difficulty
-        {
-            EASY = 1,
-            MEDIUM = 2,
-            HARD = 3
-        };
-
     private:
         string questionId;
         string questionText;
